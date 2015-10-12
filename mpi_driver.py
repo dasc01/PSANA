@@ -22,7 +22,7 @@ parser.add_argument("-n","--noe",help="number of events, all events=0",default=-
 args = parser.parse_args()
 
 if rank==0:
-    runmaster(numClients)
+    runmaster(args,numClients)
 else:
     runclient(args)
 
