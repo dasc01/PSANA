@@ -8,6 +8,7 @@ from psmon.plots import Image,MultiPlot
 import h5py
 import numpy as np
 from hitdata import hitdata 
+import time
 
 # might need classes/routines to:
 # - plot
@@ -15,6 +16,7 @@ from hitdata import hitdata
 # - save the history to h5
 npanel=5
 figs=[None]*npanel
+fids=[None]*npanel
 
 def runmaster(nClients):
     hd = hitdata()
@@ -29,14 +31,20 @@ def runmaster(nClients):
             plot(hd)
 
 def plot(hd):
-    print hd.myimg.shape
+
     for j in range(0,len(figs)-1):
 	figs[j]=figs[j+1]
-    figs[len(figs)-1]=hd.myimg   
+        fids[j]=fids[j+1]
+
+    figs[len(figs)-1]=hd.myimg
+    fids[len(fids)-1]=hd.myobj['et'].fiducial()
+    
     multi = MultiPlot(1, 'Some Plots')
+
     for j in range(0,len(figs)):
         if figs[j] is not None :
-      	    plotimg = Image(j,"CsPad",figs[j])
+      	    plotimg = Image(fids[j],"CsPad",figs[j])
             multi.add(plotimg)
+
     publish.send('MULTI', multi)
-#    time.sleep(0.4)
+    time.sleep(1.0)

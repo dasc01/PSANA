@@ -20,11 +20,15 @@ def runclient(args):
     
     for nevent,evt in enumerate(ds.events()):
         if nevent%(size-1)==rank-1:  # different ranks look at different events
-#            print rank," processing event", nevent
+#           print rank," processing event", nevent
+            eid = evt.get(EventId)
+            sec = eid.time()[0]
+            nsec = eid.time()[1]
+            fid = eid.fiducials()
+            et = EventTime(int((sec<<32)|nsec),fid)
             img = det1.image(evt)
-            intensity = img.sum()
 	    if ((nevent)%2 == 0):
-	       hd.send(intensity,img)	 
+	       hd.send(et,img)	 
         if nevent == args.noe : break
 
     hd.endrun()	

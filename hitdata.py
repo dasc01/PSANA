@@ -1,3 +1,4 @@
+from psana import *
 import numpy as np
 from mpi4py import MPI
 comm = MPI.COMM_WORLD
@@ -21,9 +22,9 @@ class hitdata(object):
 #        print rank,"has ended run"
         
 
-    def send(self, intensity,img):
+    def send(self, et, img):
 #        print rank,"is about to send"
-        obj={'intensity':intensity,'shape':img.shape,'endrun':False}
+        obj={'et':et,'shape':img.shape,'endrun':False}
         comm.send(obj,dest=0,tag=rank)
         comm.Send([img,MPI.DOUBLE],dest=0,tag=rank)
 #        print rank, "has sent"
