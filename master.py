@@ -16,7 +16,9 @@ import time
 # - save the history to h5
 
 npanel=5
-figs=[None]*npanel
+ftop=[None]*npanel
+fbot=[None]*npanel
+fmid=[None]*npanel
 fids=[None]*npanel
 
 #Set up hdf5 stuff
@@ -47,21 +49,27 @@ def runmaster(args,nClients):
 #PLOT function-------------------------
 def plot(hd):
 
-    for j in range(0,len(figs)-1):
-	figs[j]=figs[j+1]
+    for j in range(0,len(ftop)-1):
+	ftop[j]=ftop[j+1]
+	fmid[j]=fmid[j+1]
         fids[j]=fids[j+1]
 
-    figs[len(figs)-1]=hd.myimg
+    ftop[len(ftop)-1]=hd.myorig
+    fmid[len(fmid)-1]=hd.myfit  
     fids[len(fids)-1]=hd.myobj['et'].fiducial()
     
-    multi = MultiPlot(1, 'Some Plots')
+    multop = MultiPlot(1, 'Original Image')
+    mulmid = MultiPlot(1, 'Fitted   Image')
 
-    for j in range(0,len(figs)):
-        if figs[j] is not None :
-      	    plotimg = Image(fids[j],"CsPad",figs[j])
-            multi.add(plotimg)
+    for j in range(0,len(ftop)):
+        if ftop[j] is not None :
+      	    plottop = Image(fids[j],"Original",ftop[j])
+      	    plotmid = Image(fids[j],"Fitted",fmid[j])
+            multop.add(plottop)
+            mulmid.add(plotmid)
 
-    publish.send('MULTI', multi)
+    publish.send('ORIG', multop)
+    publish.send('FIT', mulmid)
 #    time.sleep(1.0)
 
 #HDF5 functions--------------------------

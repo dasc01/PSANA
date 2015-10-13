@@ -4,6 +4,8 @@ from psana import *
 import numpy as np
 from hitdata import hitdata 
 
+from fitDroplet import dofitting
+
 from mpi4py import MPI
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
@@ -26,9 +28,11 @@ def runclient(args):
             nsec = eid.time()[1]
             fid = eid.fiducials()
             et = EventTime(int((sec<<32)|nsec),fid)
+
             img = det1.image(evt)
+	    obj = dofitting(img)  #call fitting routine
 	    if ((nevent)%2 == 0):
-	       hd.send(et,img)	 
+	       hd.send(et,obj['orig'],obj['fit'],obj['drop'])	 
         if nevent == args.noe : break
 
     hd.endrun()	
