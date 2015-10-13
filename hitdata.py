@@ -41,9 +41,9 @@ class hitdata(object):
         self.myobj=comm.recv(source=MPI.ANY_SOURCE,tag=MPI.ANY_TAG,status=status)
         recvRank = status.Get_source()
         if self.myobj['endrun'] == False:
-           self.myorig=np.empty(self.myobj['shape'],dtype=np.float64)
+           self.myorig=np.empty(self.myobj['shape'],dtype=np.float32)
            comm.Recv(self.myorig,source=recvRank,tag=recvRank+1)
-           self.myfit=np.empty(self.myobj['shape'],dtype=np.float64)
+           self.myfit=np.empty(self.myobj['shape'],dtype=np.float32)
            comm.Recv(self.myfit,source=recvRank,tag=recvRank+2)
 #           self.mydrop=comm.recv(source=recvRank,tag=recvRank+3)
         return (self.myobj['endrun'])
