@@ -99,6 +99,8 @@ def writeh5(hd):
     h5out[hitN + '/Dropfit/fitImage'] = hd.myfit
     h5out[hitN + '/Dropfit/a'] = comp['drop']['a']
     h5out[hitN + '/Dropfit/b'] = comp['drop']['b']
+    h5out[hitN + '/Dropfit/x0'] = comp['drop']['x0']
+    h5out[hitN + '/Dropfit/y0'] = comp['drop']['y0']
     h5out[hitN + '/Dropfit/phi'] = comp['drop']['phi']
     h5out[hitN + '/Dropfit/theta'] = comp['drop']['theta']
     h5out[hitN + '/Dropfit/peakPos'] = comp['drop']['peakPos']

@@ -96,7 +96,7 @@ def findCentre(image, mask):
     #to start with 
     #264.6, 275.4 (x,y for test image)
     fun = lambda x: np.ravel(getSymmetry(image, mask, x[0], x[1]))
-    res = scipy.optimize.leastsq(fun, [512, 512], xtol=0.001)
+    res = scipy.optimize.leastsq(fun, [256, 256], xtol=0.001)
     return res[0]
 
 def fitPolarImage(polarDroplet, angularBins):
@@ -237,6 +237,8 @@ def dofitting(img, rawMask):
      centre = findCentre(newIm, newMask)
      polarDroplet = imageToPolar(newIm, centre[0], centre[1])
      drop = fitPolarImage(polarDroplet, 32)
+     drop['x0'] = centre[1]*2 #double it, to undo rebinning
+     drop['y0'] = centre[0]*2 #N.B. flipped around because these got mixed up
      fitImage = simulateImage(drop['a'], drop['b'], centre[0], centre[1], drop['phi'], newMask).astype(np.float32)
      fitImage = fitImage.copy(order='C') #make it contiguous for mpi???
 
