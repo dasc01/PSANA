@@ -169,7 +169,7 @@ def fitPolarImage(polarDroplet, angularBins):
     print('a = ' + str(a))
     print('b = ' + str(b))
     print('Reduced residual = ' + str(residual))
-    return {'a':a, 'b':b ,'phi':phi, 'theta':theta, 'peakPos':peakPositions, 'peakH':peakHeights, 'ovalFunc':ovalFunc(res[0]) , 'res':res }
+    return {'a':a, 'b':b ,'phi':phi, 'theta':theta, 'peakPos':peakPositions, 'peakH':peakHeights, 'ovalFunc':ovalFunc(res[0]) , 'reducedRes':residual }
 
 
     #APPROXIMATE DROPLET PARAMETERS
