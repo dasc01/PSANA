@@ -239,7 +239,7 @@ def dofitting(img, rawMask):
      drop = fitPolarImage(polarDroplet, 32)
      drop['x0'] = centre[1]*2 #double it, to undo rebinning
      drop['y0'] = centre[0]*2 #N.B. flipped around because these got mixed up
-     fitImage = simulateImage(drop['a'], drop['b'], centre[0], centre[1], drop['phi'], newMask).astype(np.float32)
+     fitImage = simulateImage(drop['a'], drop['b'], centre[1]*2, centre[0]*2, drop['phi'], newMask).astype(np.float32)
      fitImage = fitImage.copy(order='C') #make it contiguous for mpi???
 
      return {'orig':img[0:1024,0:1024].copy(order='C') , 'fit':fitImage, 'drop':drop}

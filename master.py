@@ -44,7 +44,7 @@ def runmaster(args,nClients, mask):
             writeh5(hd)
             
 
-    closeh5()
+    closeh5(mask)
 
 #PLOT function-------------------------
 def plot(hd):
@@ -54,7 +54,7 @@ def plot(hd):
 	fmid[j]=fmid[j+1]
         fids[j]=fids[j+1]
 
-    ftop[len(ftop)-1]=np.log10(abs(np.amin(hd.myorig))+hd.myorig)
+    ftop[len(ftop)-1]=np.log10(100+abs(np.amin(hd.myorig))+hd.myorig)
     fmid[len(fmid)-1]=np.log10(100+5.0e5*hd.myfit)
 
     comp=hd.myobj['comp']
@@ -111,7 +111,7 @@ def writeh5(hd):
     for name in comp['epics']:
         h5out[hitN + '/epics/' + name] = comp['epics'][name]
 
-def closeh5():
+def closeh5(mask):
     global h5out
     summaryGroup = h5out.create_group('Summary')
     summaryGroup.create_dataset('message', data = "End_of_run")
