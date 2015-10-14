@@ -9,7 +9,7 @@ import h5py
 import numpy as np
 from hitdata import hitdata 
 import time
-from EZHist import *
+from EZHist import initHist, pushToHist 
 
 # might need classes/routines to:
 # - plot
@@ -31,7 +31,8 @@ def runmaster(args,nClients):
     hd = hitdata()
 
     inith5(args)
-    initHist('DropSize',100,0,1000)
+    initHist('DropSize',100,0,2000)
+    initHist('TOFhits',1000,-2,2)
 
     while nClients > 0:
         # Remove client if the run ended
@@ -41,6 +42,10 @@ def runmaster(args,nClients):
         else:
 #            print "Calling plot?"
             plot(hd)
+            comp = hd.myobj['comp']
+            size=(comp['drop']['a']+comp['drop']['b'])/2.0
+            pushToHist('DropSize',size)
+            pushToHist('TOFhits',comp['tofsum'])
             writeh5(hd)
             
 
