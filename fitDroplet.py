@@ -231,8 +231,9 @@ def dofitting(img):
      centre = findCentre(newIm, newMask)
      polarDroplet = imageToPolar(newIm, centre[0], centre[1])
      drop = fitPolarImage(polarDroplet, 32)
-     scaledLogImage=np.log10(1000+5.0e5*simulateImage(drop['a'], drop['b'], centre[0], centre[1], drop['phi'], newMask)).astype(np.float32)
-     return {'orig':newIm , 'fit':scaledLogImage, 'drop':drop}
+     fitImage = simulateImage(drop['a'], drop['b'], centre[0], centre[1], drop['phi'], newMask).astype(np.float32)
+ 
+     return {'orig':img[0:1024,0:1024] , 'fit':fitImage, 'drop':drop}
 
 #     means[n] = drop['meanSize']
 #     plt.imshow()

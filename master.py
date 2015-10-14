@@ -54,8 +54,8 @@ def plot(hd):
 	fmid[j]=fmid[j+1]
         fids[j]=fids[j+1]
 
-    ftop[len(ftop)-1]=hd.myorig
-    fmid[len(fmid)-1]=hd.myfit
+    ftop[len(ftop)-1]=np.log10(abs(np.amin(hd.myorig))+hd.myorig)
+    fmid[len(fmid)-1]=np.log10(100+5.0e5*hd.myfit)
 
     comp=hd.myobj['comp']
   

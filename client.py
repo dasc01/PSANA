@@ -20,7 +20,7 @@ def runclient(args):
     det1 = Detector('pnccdFront',ds.env())
     det2 = Detector('ACQ4',ds.env())
     epics = ds.env().epicsStore()
-    thresh = 0.40
+    thresh = 0.10#0.40
     
 #    print "rank, size = ", rank, size
     
