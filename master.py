@@ -81,23 +81,23 @@ def inith5(args):
     h5out = h5py.File(fname, 'w')
 
 def writeh5(hd):
-    global h5out
+    global h5out, nHits
 
     comp = hd.myobj['comp']
-
-    hitN = str(nHits++)
+    nHits += 1
+    hitN = str(nHits)
     h5out[hitN + '/seconds'] = comp['et'].seconds()
     h5out[hitN + '/nanoseconds'] = comp['et'].nanoseconds()
     h5out[hitN + '/fiducial'] = comp['et'].fiducial()    
 
     h5out[hitN + '/image'] = hd.myorig
-    h5out[hitN + '/fitImage'] = hd.md.myfit
+    h5out[hitN + '/fitImage'] = hd.myfit
 
     h5out[hitN + '/TOF'] = comp['tof']
-    h5out[hitN + '/TOFAxis'] = comp['tofaxis']
+    h5out[hitN + '/TOFAxis'] = comp['tofAxis']
     
     for name in comp['epics']:
-        h5out[hitN + '/epics/' + name] = comp['epics']['name']
+        h5out[hitN + '/epics/' + name] = comp['epics'][name]
 
 def closeh5():
     global h5out
