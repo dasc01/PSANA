@@ -24,10 +24,7 @@ fids=[None]*npanel
 
 #Set up hdf5 stuff
 h5out = None
-eventDataGroup=None
-evtSecDs=None
-evtNanoDs=None
-nextDsIdx=-1
+nHits = 0
 
 def runmaster(args,nClients):
 
@@ -79,24 +76,28 @@ def plot(hd):
 
 #HDF5 functions--------------------------
 def inith5(args):
-    global h5out, eventDataGroup, evtSecDs, evtNanoDs
+    global h5out
     fname=args.exprun+'.h5'
     h5out = h5py.File(fname, 'w')
-    eventDataGroup = h5out.create_group('EventData')
-    evtSecDs = eventDataGroup.create_dataset('event_seconds',(0,), dtype='i4', chunks=True, maxshape=(None,))
-    evtNanoDs = eventDataGroup.create_dataset('event_nanoseconds',(0,), dtype='i4', chunks=True, maxshape=(None,))
-
 
 def writeh5(hd):
-    global evtSecDs, evtNanoDs, nextDsIdx
+    global h5out
 
-    nextDsIdx += 1
- 
-    evtSecDs.resize((nextDsIdx+1,))
-    evtNanoDs.resize((nextDsIdx+1,))
     comp = hd.myobj['comp']
-    evtSecDs[nextDsIdx] = comp['et'].seconds()
-    evtNanoDs[nextDsIdx] = comp['et'].nanoseconds()
+
+    hitN = str(nHits++)
+    h5out[hitN + '/seconds'] = comp['et'].seconds()
+    h5out[hitN + '/nanoseconds'] = comp['et'].nanoseconds()
+    h5out[hitN + '/fiducial'] = comp['et'].fiducial()    
+
+    h5out[hitN + '/image'] = hd.myorig
+    h5out[hitN + '/fitImage'] = hd.md.myfit
+
+    h5out[hitN + '/TOF'] = comp['tof']
+    h5out[hitN + '/TOFAxis'] = comp['tofaxis']
+    
+    for name in comp['epics']:
+        h5out[hitN + '/epics/' + name] = comp['epics']['name']
 
 def closeh5():
     global h5out
