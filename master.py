@@ -26,7 +26,7 @@ fids=[None]*npanel
 h5out = None
 nHits = 0
 
-def runmaster(args,nClients):
+def runmaster(args,nClients, mask):
 
     hd = hitdata()
 

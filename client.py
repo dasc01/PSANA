@@ -1,4 +1,3 @@
-
 #run this with: mpirun -n 2 python mpiGather.py
 from psana import *
 import numpy as np
@@ -12,7 +11,7 @@ comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
 
-def runclient(args):
+def runclient(args, mask):
     hd=hitdata()
     hf=tofhitfind() 
 
@@ -41,8 +40,9 @@ def runclient(args):
                     epdict[name]=epics.value(name)
 
                 img = det1.image(evt)
-                obj = dofitting(img)  #call fitting routine
+                obj = dofitting(img, mask)  #call fitting routine
                 comp = {'et':et , 'tof':tof[0], 'tofAxis':tofAxis[0], 'epics':epdict, 'drop':obj['drop']}
+                print('orig', obj['orig'].shape, 'fit', obj['fit'].shape)
                 hd.send(comp, obj['orig'], obj['fit'])	 
         if nevent == args.noe : break
 
