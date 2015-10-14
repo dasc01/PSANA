@@ -9,6 +9,7 @@ import h5py
 import numpy as np
 from hitdata import hitdata 
 import time
+from EZHist import *
 
 # might need classes/routines to:
 # - plot
@@ -33,6 +34,7 @@ def runmaster(args,nClients):
     hd = hitdata()
 
     inith5(args)
+    initHist('DropSize',100,0,1000)
 
     while nClients > 0:
         # Remove client if the run ended
@@ -55,8 +57,11 @@ def plot(hd):
         fids[j]=fids[j+1]
 
     ftop[len(ftop)-1]=hd.myorig
-    fmid[len(fmid)-1]=hd.myfit  
-    fids[len(fids)-1]=hd.myobj['et'].fiducial()
+    fmid[len(fmid)-1]=hd.myfit
+
+    comp=hd.myobj['comp']
+  
+    fids[len(fids)-1]=comp['et'].fiducial()
     
     multop = MultiPlot(1, 'Original Image')
     mulmid = MultiPlot(1, 'Fitted   Image')
@@ -89,9 +94,9 @@ def writeh5(hd):
  
     evtSecDs.resize((nextDsIdx+1,))
     evtNanoDs.resize((nextDsIdx+1,))
- 
-    evtSecDs[nextDsIdx] = hd.myobj['et'].seconds()
-    evtNanoDs[nextDsIdx] = hd.myobj['et'].nanoseconds()
+    comp = hd.myobj['comp']
+    evtSecDs[nextDsIdx] = comp['et'].seconds()
+    evtNanoDs[nextDsIdx] = comp['et'].nanoseconds()
 
 def closeh5():
     global h5out

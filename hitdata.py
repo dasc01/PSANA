@@ -25,13 +25,13 @@ class hitdata(object):
 #        print rank,"has ended run"
         
 
-    def send(self, et, orig, fit, drop):
+    def send(self, comp, orig, fit):
 #        print rank,"is about to send"
-        obj={'et':et,'shape':orig.shape,'endrun':False}
+        obj={'comp':comp,'shape':orig.shape,'endrun':False}
         comm.send(obj,dest=0,tag=rank)
         comm.Send([orig,MPI.DOUBLE],dest=0,tag=rank+1)
         comm.Send([fit,MPI.DOUBLE],dest=0,tag=rank+2)
-        comm.send(drop,dest=0,tag=rank+3)
+#        comm.send(drop,dest=0,tag=rank+3)
 #        print rank, "has sent"
  
 
@@ -45,7 +45,7 @@ class hitdata(object):
            comm.Recv(self.myorig,source=recvRank,tag=recvRank+1)
            self.myfit=np.empty(self.myobj['shape'],dtype=np.float32)
            comm.Recv(self.myfit,source=recvRank,tag=recvRank+2)
-           self.mydrop=comm.recv(source=recvRank,tag=recvRank+3)
+#           self.mydrop=comm.recv(source=recvRank,tag=recvRank+3)
         return (self.myobj['endrun'])
 
 
