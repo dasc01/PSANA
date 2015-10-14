@@ -113,4 +113,7 @@ def closeh5():
     global h5out
     summaryGroup = h5out.create_group('Summary')
     summaryGroup.create_dataset('message', data = "End_of_run")
+
+    h5out['mask'] = mask
+
     h5out.close()
