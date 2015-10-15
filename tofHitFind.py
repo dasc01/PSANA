@@ -21,9 +21,10 @@ class tofhitfind(object):
 
 	self.count += 1 
 
-	self.sum = 0.0
-        for i in range(len(tof)):
-            self.sum = self.sum + (tof[i] - self.maty[i]/self.nav)
+        self.sum = np.sum(tof-(self.maty/self.nav))
+	#self.sum = 0.0
+        #for i in range(len(tof)):
+        #    self.sum = self.sum + (tof[i] - self.maty[i]/self.nav)
         print "tof:", self.sum, thresh
 #        return 1
-        return (abs(self.sum) > thresh)
+        return ((self.sum) < -thresh)
