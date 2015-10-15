@@ -8,6 +8,9 @@ from tofHitFind import tofhitfind
 from imgHitFind import imghitfind
 
 from mpi4py import MPI
+
+import time
+
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
@@ -17,12 +20,14 @@ def runclient(args, mask):
     hf=tofhitfind() 
     ihf=imghitfind()
     
-    ds = DataSource('exp=amoj5415:' + args.exprun+':smd')
+#    ds = DataSource('exp=amoj5415:' + args.exprun+':smd')
+    ds = DataSource('exp=amoj5415:' + args.exprun+':smd'+':dir=/reg/d/ffb/amo/amoj5415/xtc:live')
 #    ds = DataSource(args.exprun+':smd'+':dir=/reg/d/ffb/amo/amoj5415/xtc:live')
+  
     det1 = Detector('pnccdFront',ds.env())
     det2 = Detector('ACQ4',ds.env())
     epics = ds.env().epicsStore()
-    thresh = 60.0
+    thresh = 2
     ithr   = 1E8
     
 #    print "rank, size = ", rank, size
@@ -30,8 +35,9 @@ def runclient(args, mask):
     for nevent,evt in enumerate(ds.events()):
         if nevent == args.noe : break #kill if we reach event noe
         if nevent%(size-1)==rank-1:  # different ranks look at different events
-   #         try:
-                print rank," processing event", nevent
+            try:
+
+                #                print rank," processing event", nevent
                 eid = evt.get(EventId)
                 sec = eid.time()[0]
                 nsec = eid.time()[1]
@@ -46,19 +52,21 @@ def runclient(args, mask):
 		    continue
             
                 if (hf.hitfind(tof[0],tofAxis[0],thresh)):
+                    print ("hit at ", time.ctime(), eid)
+  #              if (np.random.random() > 0):
                     epdict=dict()
                     for name in epics.names():
                         epdict[name]=epics.value(name)
 
                     img = det1.image(evt)
-		    if(np.random.random() > 0.00):   #ihf.ihitfind(img,ithr)):
+		    if(np.random.random() > 0):   #ihf.ihitfind(img,ithr)):
                         obj = dummyFit(img, mask)  #call fitting routine
                         comp = { 'et':et , 'tof':tof[0], 'tofAxis':tofAxis[0], 'epics':epdict, 'drop':obj['drop'], 'tofsum':hf.sum , 'imgsum':ihf.sum }
                         hd.send(comp, obj['orig'], obj['fit'])	 
 
-#            except:
- #               print "Exception on rank: ", rank, " event ", nevent
-#                continue
+            except:
+                print "Exception on rank: ", rank, " event ", nevent
+                continue
 
 
     hd.endrun()	

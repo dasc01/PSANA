@@ -26,7 +26,7 @@ fids=[None]*npanel
 h5out = None
 nHits = 0
 
-saveImages = 0
+saveImages = 1
 
 def runmaster(args,nClients, mask):
 
@@ -34,7 +34,7 @@ def runmaster(args,nClients, mask):
 
     inith5(args)
     initHist('DropSize',50,500,2000)
-    initHist('TOFhits',1000,-100,100)
+    initHist('TOFhits',1000,-4,4)
     initHist('IMGhits',1000,0,10E6)
 
     while nClients > 0:
@@ -64,7 +64,7 @@ def plot(hd):
 	fbot[j]=fbot[j+1]
         fids[j]=fids[j+1]
 
-    ftop[len(ftop)-1]=np.log10(100+abs(np.amin(hd.myorig))+hd.myorig)
+    ftop[len(ftop)-1]=hd.myorig
     fmid[len(fmid)-1]=np.log10(100+abs(np.amin(hd.myfit))+hd.myfit)
 
     comp=hd.myobj['comp']
