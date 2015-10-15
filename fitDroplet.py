@@ -19,7 +19,7 @@ def simulateImage(a_nm, b_nm, x0, y0, ph0, mask):
     k = 7.6e6 #%  X-ray wavenumber = 4.25e6 mm-1 = 2pi/lambda
     #k = 7.6e6/3
 
-    imageSize = 512# %N.B we could make this smaller, because we'll mask most out
+    imageSize = 1024# %N.B we could make this smaller, because we'll mask most out
 
     #get a coordinate grid
     X, Y = np.meshgrid((np.arange(0,imageSize)-x0)*dpix, (np.arange(0,imageSize)-y0)*dpix) 
@@ -96,7 +96,7 @@ def findCentre(image, mask):
     #to start with 
     #264.6, 275.4 (x,y for test image)
     fun = lambda x: np.ravel(getSymmetry(image, mask, x[0], x[1]))
-    res = scipy.optimize.leastsq(fun, [264, 275], xtol=0.001)
+    res = scipy.optimize.leastsq(fun, [256, 256], xtol=0.001)
     return res[0]
 
 def fitPolarImage(polarDroplet, angularBins):
@@ -218,21 +218,31 @@ def cartesianFit(a, b, x0, y0, phi, logDropletImage, mask):
 #plt.hist(means)
 #plt.show()
 
-def dofitting(img):
+def dofitting(img, rawMask):
      min = np.amin(img)
      scaledLogImage = np.log10(abs(min)+100+img)[0:1024,0:1024]
-     newIm = 2*np.zeros([512,512],dtype=np.float32);
-     for i in range(512):
-         for j in range(512):
-             newIm[i,j]=(scaledLogImage[2*i,2*j]+scaledLogImage[2*i+1,2*j]+scaledLogImage[2*i,2*j+1]+scaledLogImage[2*i+1,2*j+1])/4.0         
-     rawMask = np.loadtxt('mask.txt', delimiter=',')
-     newMask = np.zeros([512,512],dtype=np.float32);
-     newMask[56:56+398,56:56+398] = rawMask;
+
+     newIm = scaledLogImage #rebin???
+#     newIm = 2*np.zeros([512,512],dtype=np.float32);
+#     for i in range(512):
+#         for j in range(512):
+#             newIm[i,j]=(scaledLogImage[2*i,2*j]+scaledLogImage[2*i+1,2*j]+scaledLogImage[2*i,2*j+1]+scaledLogImage[2*i+1,2*j+1])/4.0
+
+         
+#     rawMask = np.loadtxt('mask.txt', delimiter=',')
+ #    newMask = np.zeros([512,512],dtype=np.float32);
+ #    newMask[56:56+398,56:56+398] = rawMask; #NB will need to fix mask code when we have a real mask to play with
+
+     newMask = rawMask.astype(np.float32) #do some actual mask processing later
      centre = findCentre(newIm, newMask)
      polarDroplet = imageToPolar(newIm, centre[0], centre[1])
      drop = fitPolarImage(polarDroplet, 32)
-     scaledLogImage=np.log10(1000+5.0e5*simulateImage(drop['a'], drop['b'], centre[0], centre[1], drop['phi'], newMask)).astype(np.float32)
-     return {'orig':newIm , 'fit':scaledLogImage, 'drop':drop}
+     drop['x0'] = centre[1]*2 #double it, to undo rebinning
+     drop['y0'] = centre[0]*2 #N.B. flipped around because these got mixed up
+     fitImage = simulateImage(drop['a'], drop['b'], centre[1]*2, centre[0]*2, drop['phi'], newMask).astype(np.float32)
+     fitImage = fitImage.copy(order='C') #make it contiguous for mpi???
+
+     return {'orig':img[0:1024,0:1024].copy(order='C') , 'fit':fitImage, 'drop':drop}
 
 #     means[n] = drop['meanSize']
 #     plt.imshow()

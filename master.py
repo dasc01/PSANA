@@ -4,7 +4,7 @@ rank = comm.Get_rank()
 size = comm.Get_size()
 
 from psmon import publish
-from psmon.plots import Image,MultiPlot
+from psmon.plots import Image,MultiPlot,XYPlot
 import h5py
 import numpy as np
 from hitdata import hitdata 
@@ -26,13 +26,14 @@ fids=[None]*npanel
 h5out = None
 nHits = 0
 
-def runmaster(args,nClients):
+def runmaster(args,nClients, mask):
 
     hd = hitdata()
 
     inith5(args)
-    initHist('DropSize',100,0,2000)
-    initHist('TOFhits',1000,-2,2)
+    initHist('DropSize',50,500,2000)
+    initHist('TOFhits',1000,-100,100)
+    initHist('IMGhits',1000,0,10E6)
 
     while nClients > 0:
         # Remove client if the run ended
@@ -46,10 +47,11 @@ def runmaster(args,nClients):
             size=(comp['drop']['a']+comp['drop']['b'])/2.0
             pushToHist('DropSize',size)
             pushToHist('TOFhits',comp['tofsum'])
+            pushToHist('IMGhits',comp['imgsum'])
             writeh5(hd)
             
 
-    closeh5()
+    closeh5(mask)
 
 #PLOT function-------------------------
 def plot(hd):
@@ -57,27 +59,33 @@ def plot(hd):
     for j in range(0,len(ftop)-1):
 	ftop[j]=ftop[j+1]
 	fmid[j]=fmid[j+1]
+	fbot[j]=fbot[j+1]
         fids[j]=fids[j+1]
 
-    ftop[len(ftop)-1]=hd.myorig
-    fmid[len(fmid)-1]=hd.myfit
+    ftop[len(ftop)-1]=np.log10(100+abs(np.amin(hd.myorig))+hd.myorig)
+    fmid[len(fmid)-1]=np.log10(100+5.0e5*hd.myfit)
 
     comp=hd.myobj['comp']
   
     fids[len(fids)-1]=comp['et'].fiducial()
+    fbot[len(ftop)-1]=comp['tof']
     
     multop = MultiPlot(1, 'Original Image')
     mulmid = MultiPlot(1, 'Fitted   Image')
+    mulbot = MultiPlot(1, 'TOF plot')
 
     for j in range(0,len(ftop)):
         if ftop[j] is not None :
       	    plottop = Image(fids[j],"Original",ftop[j])
       	    plotmid = Image(fids[j],"Fitted",fmid[j])
+            plotbot = XYPlot(fids[j], "TOF", comp['tofAxis'], fbot[j])
             multop.add(plottop)
             mulmid.add(plotmid)
+            mulbot.add(plotbot)
 
     publish.send('ORIG', multop)
     publish.send('FIT', mulmid)
+    publish.send('TOFXY', mulbot)
 #    time.sleep(1.0)
 
 #HDF5 functions--------------------------
@@ -104,6 +112,8 @@ def writeh5(hd):
     h5out[hitN + '/Dropfit/fitImage'] = hd.myfit
     h5out[hitN + '/Dropfit/a'] = comp['drop']['a']
     h5out[hitN + '/Dropfit/b'] = comp['drop']['b']
+    h5out[hitN + '/Dropfit/x0'] = comp['drop']['x0']
+    h5out[hitN + '/Dropfit/y0'] = comp['drop']['y0']
     h5out[hitN + '/Dropfit/phi'] = comp['drop']['phi']
     h5out[hitN + '/Dropfit/theta'] = comp['drop']['theta']
     h5out[hitN + '/Dropfit/peakPos'] = comp['drop']['peakPos']
@@ -114,8 +124,11 @@ def writeh5(hd):
     for name in comp['epics']:
         h5out[hitN + '/epics/' + name] = comp['epics'][name]
 
-def closeh5():
+def closeh5(mask):
     global h5out
     summaryGroup = h5out.create_group('Summary')
     summaryGroup.create_dataset('message', data = "End_of_run")
+
+    h5out['mask'] = mask
+
     h5out.close()

@@ -7,6 +7,9 @@
 from master import runmaster
 from client import runclient
 
+import numpy as np
+from psana import *
+
 from mpi4py import MPI
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
@@ -20,11 +23,26 @@ parser.add_argument("exprun", help="psana experiment/run string (e.g. exp=amoj54
 parser.add_argument("-n","--noe",help="number of events, all events=0",default=-1, type=int)
 
 args = parser.parse_args()
+mask = np.empty([1024, 1024])
+
+#pull the mask from the 1st event
+#ds = DataSource(args.exprun+':smd')
+#det = Detector('pnccdFront',ds.env())
+#for nevent,evt in enumerate(ds.events()):
+#    mask = det.image(evt,np.ones((4,1024,1024)))
+#    break
+
+from psmon import publish
+from psmon.plots import Image
+
+mask = np.ones([1024, 1024])
 
 if rank==0:
-    runmaster(args,numClients)
+    maskplot = Image(0,'mask',mask)
+    publish.send('mask', maskplot)
+    runmaster(args,numClients, mask)
 else:
-    runclient(args)
+    runclient(args, mask)
 
 
 MPI.Finalize()
