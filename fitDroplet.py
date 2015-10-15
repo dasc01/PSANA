@@ -251,6 +251,6 @@ def dofitting(img, rawMask):
 #     #cartesianFit(drop['a'], drop['b'], centre[1], centre[0], drop['phi'], newIm, newMask)
     
 def dummyFit(img, rawMask):
-        drop = {'a': 0, 'b':0, 'x0':0, 'y0':0, 'phi':0, 'theta':0, 'peakPos':0, 'peakH':0, 'ovalFunc':0, 'reducedRes':0}
-    return {'orig':img[0:1024,0:1024].copy(order='C') , 'fit'::img[0:1024,0:1024].copy(order='C'), 'drop':drop}
+    drop = {'a': 0, 'b':0, 'x0':0, 'y0':0, 'phi':0, 'theta':0, 'peakPos':0, 'peakH':0, 'ovalFunc':0, 'reducedRes':0}
+    return {'orig':img[0:1024,0:1024].copy(order='C') , 'fit':img[0:1024,0:1024].copy(order='C'), 'drop':drop}
 
